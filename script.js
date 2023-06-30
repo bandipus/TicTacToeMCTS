@@ -19,7 +19,6 @@ document.addEventListener('DOMContentLoaded', () => { // Movida para que no se c
 
     init();
 
-
     function init() {
         cells.forEach(cell => cell.addEventListener("click", clickCell))
         restartButton.addEventListener("click", restartGame);
