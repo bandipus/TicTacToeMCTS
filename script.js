@@ -3,6 +3,7 @@ document.addEventListener('DOMContentLoaded', () => { // Movida para que no se c
     const cells = document.querySelectorAll(".cell");
     const statusText = document.querySelector("#statusText")
     const restartButton = document.querySelector("#restartButton");
+    const changeModeButton = document.querySelector("#changeModeButton");
     const winningCombinations = [
         [0, 1, 2],
         [3, 4, 5],
@@ -13,26 +14,38 @@ document.addEventListener('DOMContentLoaded', () => { // Movida para que no se c
         [0, 4, 8],
         [2, 4, 6]
     ];
+
     let options = ["", "", "", "", "", "", "", "", ""];
     let currentPlayer = "X"
     let gameOver = false;
+    let actualMode = 1;
 
     init();
-
+    
     function init() {
         cells.forEach(cell => cell.addEventListener("click", clickCell))
         restartButton.addEventListener("click", restartGame);
+        changeModeButton.addEventListener("click", changeMode);
         statusText.textContent = `${currentPlayer}'s turn`;
     }
 
     function clickCell() {
         const cellIndex = this.getAttribute("cellIndex");
-        if(options[cellIndex] != "" || gameOver) {
+        if (options[cellIndex] != "" || gameOver) {
             return;
         }
 
         updateCell(this, cellIndex);
         checkWinner();
+        
+        if (actualMode == 2) {
+            cells.forEach(cell => cell.removeEventListener("click", clickCell));
+            // MINIMAX ALGORITHM
+            setTimeout(() => {
+                checkWinner();
+                cells.forEach(cell => cell.addEventListener("click", clickCell));
+            }, 1000);
+        }
     }
 
     function updateCell(cell, index) {
@@ -80,4 +93,23 @@ document.addEventListener('DOMContentLoaded', () => { // Movida para que no se c
         cells.forEach(cell => cell.textContent = "");
         gameOver = false;
     }
+
+    function vsMachineMode() {
+
+    }
+
+    function changeMode() {
+        restartGame();
+        if (actualMode == 1) {
+            modeText.textContent = `Player (X) vs AI (O)`;
+            actualMode = 2;
+            vsMachineMode();
+        }
+        else {
+            modeText.textContent = `Player (X) vs Player (O)`;
+            actualMode = 1;
+        }
+    }
+
+
 });
