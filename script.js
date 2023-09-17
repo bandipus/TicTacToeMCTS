@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', () => { // Movida para que no se cargue js antes de html
+document.addEventListener('DOMContentLoaded', () => { // Load html before js
     
     const cells = document.querySelectorAll(".cell");
     const statusText = document.querySelector("#statusText")
@@ -40,8 +40,9 @@ document.addEventListener('DOMContentLoaded', () => { // Movida para que no se c
         
         if (actualMode == 2) {
             cells.forEach(cell => cell.removeEventListener("click", clickCell));
-            // MINIMAX ALGORITHM
+            var cellAI = minimax(options, "O").index;
             setTimeout(() => {
+                updateCell(cells[cellAI], cellAI);
                 checkWinner();
                 cells.forEach(cell => cell.addEventListener("click", clickCell));
             }, 1000);
@@ -94,16 +95,11 @@ document.addEventListener('DOMContentLoaded', () => { // Movida para que no se c
         gameOver = false;
     }
 
-    function vsMachineMode() {
-
-    }
-
     function changeMode() {
         restartGame();
         if (actualMode == 1) {
             modeText.textContent = `Player (X) vs AI (O)`;
             actualMode = 2;
-            vsMachineMode();
         }
         else {
             modeText.textContent = `Player (X) vs Player (O)`;
@@ -111,5 +107,77 @@ document.addEventListener('DOMContentLoaded', () => { // Movida para que no se c
         }
     }
 
+    function getEmptyCells(board) {
+        let emptyCells = [];
+        for (let i = 0; i < 9; i++) {
+            if (board[i] == "") {
+                emptyCells.push(i);
+            }
+        }
+        return emptyCells;
+    }    
 
+    function h(node, player) {
+        let plays = node.reduce((a, e, i) => 
+            (e === player) ? a.concat(i) : a, []);
+        let winner = null;
+        for (let [index, win] of winningCombinations.entries()) {
+            if (win.every(elem => plays.indexOf(elem) > -1)) {
+                winner = { index: index, player: player };
+                break;
+            }
+        }
+        return winner;        
+    }
+
+    function minimax(newBoard, player) {
+        var availSpots = getEmptyCells(newBoard);
+    
+        if (h(newBoard, "X")) {
+            return { score: -10 };
+        } else if (h(newBoard, "O")) {
+            return { score: 10 };
+        } else if (availSpots.length === 0) {
+            return { score: 0 };
+        }
+        var moves = [];
+        for (var i = 0; i < availSpots.length; i++) {
+            var move = {};
+            move.index = availSpots[i];
+            newBoard[availSpots[i]] = player;
+    
+            if (player == "O") {
+                var result = minimax(newBoard, "X");
+                move.score = result.score;
+            } else {
+                var result = minimax(newBoard, "O");
+                move.score = result.score;
+            }
+    
+            newBoard[availSpots[i]] = "";
+    
+            moves.push(move);
+        }
+    
+        var bestMove;
+        if (player === "O") {
+            var bestScore = -10000;
+            for (var i = 0; i < moves.length; i++) {
+                if (moves[i].score > bestScore) {
+                    bestScore = moves[i].score;
+                    bestMove = i;
+                }
+            }
+        } else {
+            var bestScore = 10000;
+            for (var i = 0; i < moves.length; i++) {
+                if (moves[i].score < bestScore) {
+                    bestScore = moves[i].score;
+                    bestMove = i;
+                }
+            }
+        }
+    
+        return moves[bestMove];
+    }
 });
