@@ -153,7 +153,7 @@ document.addEventListener('DOMContentLoaded', () => { // Load html before js
                 var result = minimax(newBoard, "O");
                 move.score = result.score;
             }
-    
+
             newBoard[availSpots[i]] = "";
     
             moves.push(move);
